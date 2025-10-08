@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>School Food Ordering</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #fff8f3;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .container {
+      width: 95%;
+      max-width: 420px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      padding: 20px;
+      margin-top: 10px;
+    }
+    h2, h3 { text-align: center; color: #333; }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background: #ff7a00;
+      color: white;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover { background: #e86f00; }
+    .menu-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 8px;
+    }
+    .menu-item img {
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+      margin-right: 10px;
+      object-fit: cover;
+    }
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="container" id="student-info">
+    <h2>Welcome 👋</h2>
+    <p>Enter your details before ordering</p>
+    <input id="name" placeholder="Full Name" />
+    <input id="section" placeholder="Section" />
+    <button onclick="startOrder()">Continue</button>
+  </div>
+
+  <div class="container hidden" id="menu-page">
+    <h2>Menu 🍔</h2>
+    <div id="menu-list"></div>
+    <button onclick="goToCart()">View Cart 🛒</button>
+  </div>
+
+  <div class="container hidden" id="cart-page">
+    <h2>Your Cart 🛍️</h2>
+    <div id="cart-list"></div>
+    <h3 id="cart-total">Total: ₱0</h3>
+    <button onclick="checkoutPage()">Checkout ✅</button>
+    <button onclick="backToMenu()">Back to Menu</button>
+  </div>
+
+  <div class="container hidden" id="checkout-page">
+    <h2>Checkout 💳</h2>
+    <p>Select pickup time:</p>
+    <select id="pickupTime">
+      <option value="Recess">Recess</option>
+      <option value="Lunch">Lunch</option>
+      <option value="Custom">Custom</option>
+    </select>
+    <p>Upload GCash proof (optional):</p>
+    <input type="file" id="paymentProof" />
+    <button onclick="submitOrder()">Submit Order 🥡</button>
+  </div>
+
+  <script>
+    // Basic frontend cart logic
+    let student = {};
+    let cart = [];
+
+    const menuData = [
+      { item: "Burger", price: 50, img: "https://i.imgur.com/dZcN7vC.jpg" },
+      { item: "Fries", price: 30, img: "https://i.imgur.com/KvXj8gB.jpg" },
+      { item: "Iced Tea", price: 20, img: "https://i.imgur.com/xv9gFbS.jpg" },
+      { item: "Hotdog", price: 25, img: "https://i.imgur.com/B1ZKcLk.jpg" }
+    ];
+
+    function startOrder() {
+      const name = document.getElementById("name").value.trim();
+      const section = document.getElementById("section").value.trim();
+      if (!name || !section) {
+        alert("Please enter your name and section.");
+        return;
+      }
+      student = { name, section };
+      document.getElementById("student-info").classList.add("hidden");
+      showMenu();
+    }
+
+    function showMenu() {
+      const list = document.getElementById("menu-list");
+      list.innerHTML = "";
+      menuData.forEach(m => {
+        const div = document.createElement("div");
+        div.className = "menu-item";
+        div.innerHTML = `
+          <img src="${m.img}">
+          <div style="flex:1">
+            <strong>${m.item}</strong><br>₱${m.price}
+          </div>
+          <button onclick="addToCart('${m.item}', ${m.price})">Add</button>
+        `;
+        list.appendChild(div);
+      });
+      document.getElementById("menu-page").classList.remove("hidden");
+    }
+
+    function addToCart(item, price) {
+      cart.push({ item, price, quantity: 1 });
+      alert(item + " added to cart!");
+    }
+
+    function goToCart() {
+      document.getElementById("menu-page").classList.add("hidden");
+      const list = document.getElementById("cart-list");
+      list.innerHTML = "";
+      let total = 0;
+      cart.forEach((c, i) => {
+        total += c.price * c.quantity;
+        list.innerHTML += `
+          <div class="cart-item">
+            ${c.item} - ₱${c.price}
+            <button onclick="removeItem(${i})">❌</button>
+          </div>`;
+      });
+      document.getElementById("cart-total").innerText = "Total: ₱" + total;
+      document.getElementById("cart-page").classList.remove("hidden");
+    }
+
+    function removeItem(index) {
+      cart.splice(index, 1);
+      goToCart();
+    }
+
+    function backToMenu() {
+      document.getElementById("cart-page").classList.add("hidden");
+      document.getElementById("menu-page").classList.remove("hidden");
+    }
+
+    function checkoutPage() {
+      document.getElementById("cart-page").classList.add("hidden");
+      document.getElementById("checkout-page").classList.remove("hidden");
+    }
+
+    async function submitOrder() {
+      if (cart.length === 0) return alert("Your cart is empty!");
+      const pickupTime = document.getElementById("pickupTime").value;
+      const paymentFile = document.getElementById("paymentProof").files[0];
+      let paymentProof = "";
+
+      if (paymentFile) {
+        // Just simulate upload; real version will send file to Google Drive via Apps Script
+        paymentProof = paymentFile.name;
+      }
+
+      const orderData = {
+        name: student.name,
+        section: student.section,
+        pickupTime,
+        paymentProof,
+        paymentMethod: "GCash",
+        cart
+      };
+
+      console.log("Sending order:", orderData);
+
+      // Example fetch (replace with your deployed Google Apps Script URL later)
+      /*
+      const res = await fetch("https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec", {
+        method: "POST",
+        body: JSON.stringify(orderData)
+      });
+      const msg = await res.text();
+      alert(msg);
+      */
+      alert("✅ Order submitted successfully!\n(Connect to Google Sheets next)");
+      cart = [];
+      document.getElementById("checkout-page").classList.add("hidden");
+      document.getElementById("student-info").classList.remove("hidden");
+    }
+  </script>
+</body>
+</html>
