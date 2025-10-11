@@ -1,79 +1,147 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>School Food Ordering</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #fff8f3;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .container {
-      width: 95%;
-      max-width: 420px;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      padding: 20px;
-      margin-top: 10px;
-    }
-    h2, h3 { text-align: center; color: #333; }
-    input, select, button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 6px;
-      margin-bottom: 10px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-    button {
-      background: #ff7a00;
-      color: white;
-      border: none;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    button:hover { background: #e86f00; }
-    .menu-item {
-      display: flex;
-      align-items: center;
-      margin-bottom: 10px;
-      border-bottom: 1px solid #eee;
-      padding-bottom: 8px;
-    }
-    .menu-item img {
-      width: 60px;
-      height: 60px;
-      border-radius: 8px;
-      margin-right: 10px;
-      object-fit: cover;
-    }
-    .cart-item {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 5px;
-    }
-    .hidden { display: none; }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>School Food Ordering</title>
+<style>
+  body {
+    font-family: "Poppins", Arial, sans-serif;
+    background: #fff8f3;
+    margin: 0;
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .container {
+    width: 95%;
+    max-width: 480px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    padding: 24px;
+    margin-top: 16px;
+  }
+
+  h2 {
+    text-align: center;
+    color: #222;
+    font-size: 1.6rem;
+    margin-bottom: 10px;
+  }
+
+  h3 {
+    text-align: center;
+    color: #333;
+    margin-top: 20px;
+  }
+
+  input, select, button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 6px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+  }
+
+  button {
+    background: #007a33;
+    color: white;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.25s;
+  }
+
+  button:hover {
+    background: #d6d200;
+    color: #111;
+  }
+
+  .menu-item {
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 14px;
+    transition: transform 0.15s ease;
+  }
+
+  .menu-item:hover {
+    transform: scale(1.02);
+    background-color: #fafafa;
+  }
+
+  .menu-item-info {
+    color: #333;
+    font-size: 0.95rem;
+  }
+
+  .menu-item-info strong {
+    font-size: 1rem;
+    color: #000;
+  }
+
+  .cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px dashed #ddd;
+    padding: 8px 0;
+    font-size: 0.95rem;
+  }
+
+  .cart-item button {
+    padding: 4px 8px;
+    margin-left: 6px;
+    font-size: 0.8rem;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .info {
+    font-size: 0.95rem;
+    color: #666;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .error {
+    color: #b00020;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+
+  #cart-total {
+    text-align: center;
+    margin-top: 10px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #222;
+  }
+</style>
 </head>
+
 <body>
   <div class="container" id="student-info">
     <h2>Welcome 👋</h2>
-    <p>Enter your details before ordering</p>
+    <p class="info">Enter your details before ordering</p>
     <input id="name" placeholder="Full Name" />
     <input id="section" placeholder="Section" />
     <button onclick="startOrder()">Continue</button>
+    <p id="load-status" class="info"></p>
+    <p id="load-error" class="error" style="display:none"></p>
   </div>
 
   <div class="container hidden" id="menu-page">
-    <h2>Menu 🍔</h2>
-    <div id="menu-list"></div>
+    <h2>Menu</h2>
+    <div id="menu-list" class="menu-list">Loading menu...</div>
     <button onclick="goToCart()">View Cart 🛒</button>
   </div>
 
@@ -93,126 +161,184 @@
       <option value="Lunch">Lunch</option>
       <option value="Custom">Custom</option>
     </select>
+
     <p>Upload GCash proof (optional):</p>
     <input type="file" id="paymentProof" />
+
+    <!-- Add GCash image here -->
+    <p>Scan the QR or see the details:</p>
+    <img src="GCASH.jpg" alt="GCash QR" style="width:150px; display:block; margin:10px auto; border-radius:8px;">
+
     <button onclick="submitOrder()">Submit Order 🥡</button>
   </div>
 
-  <script>
-    // Basic frontend cart logic
-    let student = {};
-    let cart = [];
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby5y8Bm649tNKqYGTSES6UJYAonjlTi-uqHJx0G-9N0SeRSCM4cwe-O3ITaLv4O0Wiy/exec";
 
-    const menuData = [
-      { item: "Burger", price: 50, img: "https://i.imgur.com/dZcN7vC.jpg" },
-      { item: "Fries", price: 30, img: "https://i.imgur.com/KvXj8gB.jpg" },
-      { item: "Iced Tea", price: 20, img: "https://i.imgur.com/xv9gFbS.jpg" },
-      { item: "Hotdog", price: 25, img: "https://i.imgur.com/B1ZKcLk.jpg" }
-    ];
+let student = {};
+let cart = [];
+let menuData = [];
+let menuLoaded = false;
 
-    function startOrder() {
-      const name = document.getElementById("name").value.trim();
-      const section = document.getElementById("section").value.trim();
-      if (!name || !section) {
-        alert("Please enter your name and section.");
-        return;
-      }
-      student = { name, section };
-      document.getElementById("student-info").classList.add("hidden");
-      showMenu();
-    }
+async function loadMenu() {
+  const statusEl = document.getElementById('load-status');
+  const errEl = document.getElementById('load-error');
+  statusEl.textContent = "";
+  errEl.style.display = "none";
+  try {
+    const res = await fetch(SCRIPT_URL, { method: 'GET', mode: 'cors', cache: 'no-store' });
+    const data = await res.json();
+    menuData = data;
+    menuLoaded = true;
+  } catch (err) {
+    menuLoaded = false;
+    errEl.style.display = "block";
+    errEl.textContent = "Failed to load menu. Please check connection.";
+  }
+}
 
-    function showMenu() {
-      const list = document.getElementById("menu-list");
-      list.innerHTML = "";
-      menuData.forEach(m => {
-        const div = document.createElement("div");
-        div.className = "menu-item";
-        div.innerHTML = `
-          <img src="${m.img}">
-          <div style="flex:1">
-            <strong>${m.item}</strong><br>₱${m.price}
-          </div>
-          <button onclick="addToCart('${m.item}', ${m.price})">Add</button>
-        `;
-        list.appendChild(div);
-      });
-      document.getElementById("menu-page").classList.remove("hidden");
-    }
+async function startOrder() {
+  const name = document.getElementById("name").value.trim();
+  const section = document.getElementById("section").value.trim();
+  if (!name || !section) {
+    alert("Please enter your name and section.");
+    return;
+  }
+  student = { name, section };
+  if (!menuLoaded) await loadMenu();
+  document.getElementById("student-info").classList.add("hidden");
+  showMenu();
+}
 
-    function addToCart(item, price) {
-      cart.push({ item, price, quantity: 1 });
-      alert(item + " added to cart!");
-    }
+function showMenu() {
+  const list = document.getElementById("menu-list");
+  list.innerHTML = "";
 
-    function goToCart() {
-      document.getElementById("menu-page").classList.add("hidden");
-      const list = document.getElementById("cart-list");
-      list.innerHTML = "";
-      let total = 0;
-      cart.forEach((c, i) => {
-        total += c.price * c.quantity;
-        list.innerHTML += `
-          <div class="cart-item">
-            ${c.item} - ₱${c.price}
-            <button onclick="removeItem(${i})">❌</button>
-          </div>`;
-      });
-      document.getElementById("cart-total").innerText = "Total: ₱" + total;
-      document.getElementById("cart-page").classList.remove("hidden");
-    }
+  if (!menuLoaded || !menuData.length) {
+    list.innerHTML = "<p class='info'>Menu is currently unavailable.</p>";
+    document.getElementById("menu-page").classList.remove("hidden");
+    return;
+  }
 
-    function removeItem(index) {
-      cart.splice(index, 1);
-      goToCart();
-    }
+  menuData.forEach(m => {
+    const available = (m["Available (TRUE/FALSE)"] === true || String(m["Available (TRUE/FALSE)"]).toUpperCase() === "TRUE");
+    if (!available) return;
 
-    function backToMenu() {
-      document.getElementById("cart-page").classList.add("hidden");
-      document.getElementById("menu-page").classList.remove("hidden");
-    }
+    const itemName = m["Item"] || "";
+    const price = Number(m["Price"] || 0);
+    const desc = m["Description"] || "";
+    const cat = m["Category"] || "";
 
-    function checkoutPage() {
-      document.getElementById("cart-page").classList.add("hidden");
-      document.getElementById("checkout-page").classList.remove("hidden");
-    }
+    const div = document.createElement("div");
+    div.className = "menu-item";
+    div.innerHTML = `
+      <div class="menu-item-info">
+        <strong>${escapeHtml(itemName)}</strong><br>
+        ₱${escapeHtml(price.toString())}<br>
+        <small>${escapeHtml(desc)}</small><br>
+        <em>${escapeHtml(cat)}</em>
+      </div>
+      <button onclick="addToCart('${escapeHtml(itemName)}', ${price})">Add</button>
+    `;
+    list.appendChild(div);
+  });
 
-    async function submitOrder() {
-      if (cart.length === 0) return alert("Your cart is empty!");
-      const pickupTime = document.getElementById("pickupTime").value;
-      const paymentFile = document.getElementById("paymentProof").files[0];
-      let paymentProof = "";
+  document.getElementById("menu-page").classList.remove("hidden");
+}
 
-      if (paymentFile) {
-        // Just simulate upload; real version will send file to Google Drive via Apps Script
-        paymentProof = paymentFile.name;
-      }
+function addToCart(item, price) {
+  const existing = cart.find(c => c.item === item);
+  if (existing) existing.quantity++;
+  else cart.push({ item, price, quantity: 1 });
+  alert(`${item} added to cart!`);
+}
 
-      const orderData = {
-        name: student.name,
-        section: student.section,
-        pickupTime,
-        paymentProof,
-        paymentMethod: "GCash",
-        cart
-      };
+function goToCart() {
+  document.getElementById("menu-page").classList.add("hidden");
+  const list = document.getElementById("cart-list");
+  list.innerHTML = "";
+  let total = 0;
 
-      console.log("Sending order:", orderData);
+  if (cart.length === 0) list.innerHTML = "<p class='info'>Your cart is empty.</p>";
 
-      // Example fetch (replace with your deployed Google Apps Script URL later)
-      /*
-      const res = await fetch("https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec", {
-        method: "POST",
-        body: JSON.stringify(orderData)
-      });
-      const msg = await res.text();
-      alert(msg);
-      */
-      alert("✅ Order submitted successfully!\n(Connect to Google Sheets next)");
-      cart = [];
-      document.getElementById("checkout-page").classList.add("hidden");
-      document.getElementById("student-info").classList.remove("hidden");
-    }
-  </script>
+  cart.forEach((c, i) => {
+    total += c.price * c.quantity;
+    const row = document.createElement("div");
+    row.className = "cart-item";
+    row.innerHTML = `
+      <div>${escapeHtml(c.item)} x ${c.quantity}</div>
+      <div>
+        ₱${c.price}
+        <button onclick="changeQty(${i}, 1)">➕</button>
+        <button onclick="changeQty(${i}, -1)">➖</button>
+        <button onclick="removeItem(${i})">❌</button>
+      </div>
+    `;
+    list.appendChild(row);
+  });
+
+  document.getElementById("cart-total").innerText = "Total: ₱" + total;
+  document.getElementById("cart-page").classList.remove("hidden");
+}
+
+function changeQty(i, d) {
+  const item = cart[i];
+  if (!item) return;
+  item.quantity = Math.max(1, item.quantity + d);
+  goToCart();
+}
+
+function removeItem(i) {
+  cart.splice(i, 1);
+  goToCart();
+}
+
+function backToMenu() {
+  document.getElementById("cart-page").classList.add("hidden");
+  document.getElementById("menu-page").classList.remove("hidden");
+}
+
+function checkoutPage() {
+  document.getElementById("cart-page").classList.add("hidden");
+  document.getElementById("checkout-page").classList.remove("hidden");
+}
+
+async function submitOrder() {
+  if (cart.length === 0) return alert("Your cart is empty!");
+  const pickupTime = document.getElementById("pickupTime").value;
+  const paymentFile = document.getElementById("paymentProof").files[0];
+  let paymentProof = paymentFile ? paymentFile.name : "";
+
+  const orderData = {
+    name: student.name,
+    section: student.section,
+    pickupTime,
+    paymentProof,
+    cart
+  };
+
+  try {
+    await fetch(SCRIPT_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(orderData)
+    });
+    alert("✅ Order submitted successfully!");
+    cart = [];
+    document.getElementById("checkout-page").classList.add("hidden");
+    document.getElementById("student-info").classList.remove("hidden");
+  } catch (err) {
+    console.error("Order submit failed:", err);
+    alert("❌ Failed to submit order. Check console and ensure Apps Script is deployed.");
+  }
+}
+
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+}
+
+window.addEventListener("load", () => loadMenu().catch(()=>{}));
+</script>
 </body>
 </html>
