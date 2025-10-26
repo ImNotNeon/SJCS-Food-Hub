@@ -4,15 +4,25 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>School Food Ordering</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
 <style>
+  :root {
+    --font-main: 'Inter', sans-serif;
+    --font-heading: 'Poppins', sans-serif;
+  }
+
   body {
-    font-family: "Poppins", Arial, sans-serif;
+    font-family: var(--font-main);
     background: #fff8f3;
     margin: 0;
     padding: 20px 0;
     display: flex;
     flex-direction: column;
     align-items: center;
+    color: #222;
   }
 
   .container {
@@ -26,19 +36,26 @@
   }
 
   h2 {
+    font-family: var(--font-heading);
     text-align: center;
     color: #222;
-    font-size: 1.6rem;
+    font-size: 1.7rem;
+    font-weight: 600;
     margin-bottom: 10px;
+    letter-spacing: 0.5px;
   }
 
   h3 {
+    font-family: var(--font-heading);
     text-align: center;
     color: #333;
+    font-size: 1.3rem;
+    font-weight: 500;
     margin-top: 20px;
   }
 
   input, select, button {
+    display: block;
     width: 100%;
     padding: 12px;
     margin-top: 6px;
@@ -46,15 +63,24 @@
     border-radius: 8px;
     border: 1px solid #ccc;
     font-size: 1rem;
+    font-family: var(--font-main);
   }
+
+  #student-info input {
+    display: block;
+    margin: 10px auto;
+    width: 80%;
+  } 
 
   button {
     background: #007a33;
     color: white;
     border: none;
-    font-weight: bold;
+    font-weight: 600;
+    font-family: var(--font-heading);
+    letter-spacing: 0.3px;
     cursor: pointer;
-    transition: background 0.25s;
+    transition: background 0.25s, color 0.25s;
   }
 
   button:hover {
@@ -67,7 +93,7 @@
     border-radius: 10px;
     padding: 10px;
     margin-bottom: 14px;
-    transition: transform 0.15s ease;
+    transition: transform 0.15s ease, background-color 0.15s ease;
   }
 
   .menu-item:hover {
@@ -78,6 +104,7 @@
   .menu-item-info {
     color: #333;
     font-size: 0.95rem;
+    font-family: var(--font-main);
   }
 
   .menu-item-info strong {
@@ -92,12 +119,24 @@
     border-bottom: 1px dashed #ddd;
     padding: 8px 0;
     font-size: 0.95rem;
+    font-family: var(--font-main);
   }
 
   .cart-item button {
     padding: 4px 8px;
     margin-left: 6px;
     font-size: 0.8rem;
+    font-family: var(--font-heading);
+  }
+
+  .cart-item .actions .qty-btn {
+  background-color: #006b25;
+  color: #fff;
+  border-color: #004d1a;
+}
+  .cart-item .actions .qty-btn:hover {
+    background-color: #2a9d00;
+    transform: scale(1.1);
   }
 
   .hidden {
@@ -116,15 +155,146 @@
     font-weight: 600;
     text-align: center;
     margin-bottom: 8px;
+    font-family: var(--font-heading);
   }
 
   #cart-total {
     text-align: center;
     margin-top: 10px;
-    font-weight: bold;
+    font-weight: 600;
     font-size: 1.1rem;
     color: #222;
+    font-family: var(--font-heading);
   }
+
+  .condiment-btn {
+    background: #fff;
+    border: 2px solid #ddd;
+    border-radius: 20px;
+    padding: 8px 14px;
+    margin: 4px;
+    font-size: 15px;
+    color: #000;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: var(--font-heading);
+  }
+
+  .condiment-btn:hover {
+    background: #e2de00;
+  }
+
+  .condiment-btn.selected {
+    background: #b59a00;
+    border-color: #716000;
+    font-weight: 600;
+    color: #000;
+    box-shadow: 0 0 6px rgba(0, 143, 14, 0.6);
+  }
+
+  .cart-item .actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .cart-item .actions .qty-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
+    line-height: 1;
+    border-radius: 50%;
+    padding: 0;
+  }
+
+  .qty-btn {
+    background-color: #225700;
+    border: 2px solid #004808;
+    border-radius: 50%;
+    color: #e2de00;
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-heading);
+  }
+
+  .qty-btn,
+  .cart-item button {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 20px;
+  }
+
+  .qty-btn:hover {
+    background-color: #2a9d00;
+    color: white;
+    transform: scale(1.1);
+  }
+
+  * {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Floating checkout button */
+#cart-page button[onclick="checkoutPage()"] {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  max-width: 400px;
+  background: #007a33;
+  color: white;
+  border: none;
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 14px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  z-index: 999;
+}
+
+#cart-page {
+  padding-bottom: 100px;
+}
+
+/* ✨ Fade-in animation for items */
+.fade-in {
+  opacity: 0;
+  transform: translateY(8px);
+  animation: fadeInUp 0.3s ease forwards;
+}
+
+#menu-page button[onclick="goToCart()"] {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  max-width: 400px;
+  background: #00bc4e;
+  color: white;
+  border: none;
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 14px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  z-index: 999;
+}
+
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 </style>
 </head>
 
@@ -133,7 +303,7 @@
     <h2>Welcome 👋</h2>
     <p class="info">Enter your details before ordering</p>
     <input id="name" placeholder="Full Name" />
-    <input id="section" placeholder="Section" />
+    <input id="section" placeholder="Section (ex. 12A)" />
     <button onclick="startOrder()">Continue</button>
     <p id="load-status" class="info"></p>
     <p id="load-error" class="error" style="display:none"></p>
@@ -144,6 +314,29 @@
     <div id="menu-list" class="menu-list">Loading menu...</div>
     <button onclick="goToCart()">View Cart 🛒</button>
   </div>
+
+  <!-- ✅ Customize Page -->
+  <div class="container hidden" id="item-customize-page">
+    <h2 id="customize-title">Customize Item 🍔</h2>
+    <p id="customize-desc"></p>
+    <h3 id="customize-price">₱0</h3>
+
+    <div>
+      <label>Quantity:</label>
+      <div style="display:flex; align-items:center; justify-content:center; gap:10px;">
+        <button class="qty-btn" onclick="changeTempQty(-1)">-</button>
+        <span id="tempQty">1</span>
+        <button class="qty-btn" onclick="changeTempQty(1)">+</button>
+      </div>
+    </div>
+
+    <div id="condiments-list" style="margin-top:15px; text-align:center;"></div>
+    <p id="selected-condiments" style="text-align:center; color:#555; font-size:0.9rem; margin-top:10px;"></p>
+
+    <button onclick="confirmAddToCart()">Add to Cart 🛒</button>
+    <button onclick="backToMenu()">Cancel</button>
+  </div>
+  <!-- ✅ END Customize Page -->
 
   <div class="container hidden" id="cart-page">
     <h2>Your Cart 🛍️</h2>
@@ -163,22 +356,26 @@
     </select>
 
     <p>Upload GCash proof (optional):</p>
-    <input type="file" id="paymentProof" />
+    <input type="file" id="paymentProof" accept="image/*" />
 
-    <!-- Add GCash image here -->
     <p>Scan the QR or see the details:</p>
     <img src="GCASH.jpg" alt="GCash QR" style="width:150px; display:block; margin:10px auto; border-radius:8px;">
 
     <button onclick="submitOrder()">Submit Order 🥡</button>
   </div>
+  
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby5y8Bm649tNKqYGTSES6UJYAonjlTi-uqHJx0G-9N0SeRSCM4cwe-O3ITaLv4O0Wiy/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxZAHZ7rZKEbWJh6snOK1SyUrd0GxURuwUreVuqPtjYm_9juCC07ZF4c9VH66Ut794q/exec";
 
 let student = {};
 let cart = [];
 let menuData = [];
 let menuLoaded = false;
+
+let selectedItem = null;
+let tempQty = 1;
+let selectedCondiments = [];
 
 async function loadMenu() {
   const statusEl = document.getElementById('load-status');
@@ -211,26 +408,91 @@ async function startOrder() {
 }
 
 function showMenu() {
+  const menuPage = document.getElementById("menu-page");
+  const list = document.getElementById("menu-list");
+
+  // Show loading message
+  list.innerHTML = `<p class="info">Loading menu... 🍴 Please wait.</p>`;
+  menuPage.classList.remove("hidden");
+
+  // Small delay so the user sees loading
+  setTimeout(() => {
+    renderMenuPage();
+  }, 500);
+}
+
+function renderMenuPage() {
+  const menuPage = document.getElementById("menu-page");
   const list = document.getElementById("menu-list");
   list.innerHTML = "";
 
-  if (!menuLoaded || !menuData.length) {
-    list.innerHTML = "<p class='info'>Menu is currently unavailable.</p>";
-    document.getElementById("menu-page").classList.remove("hidden");
-    return;
+  // ✅ Add Search Bar
+  if (!document.getElementById("search-box")) {
+    const searchBar = document.createElement("input");
+    searchBar.id = "search-box";
+    searchBar.type = "text";
+    searchBar.placeholder = "🔍 Search food...";
+    searchBar.oninput = filterMenu;
+    searchBar.style.cssText = `
+      width:96%;
+      padding:10px;
+      border-radius:8px;
+      border:1px solid #ccc;
+      margin-bottom:10px;
+      font-family:var(--font-main);
+      font-size:1rem;
+    `;
+    menuPage.insertBefore(searchBar, list);
   }
 
-  menuData.forEach(m => {
-    const available = (m["Available (TRUE/FALSE)"] === true || String(m["Available (TRUE/FALSE)"]).toUpperCase() === "TRUE");
-    if (!available) return;
+// ✅ Category Dropdown
+let catDiv = document.getElementById("category-filters");
+if (!catDiv) {
+  catDiv = document.createElement("div");
+  catDiv.id = "category-filters";
+  catDiv.style.textAlign = "center";
+  catDiv.style.marginBottom = "10px";
+  menuPage.insertBefore(catDiv, list);
+}
 
-    const itemName = m["Item"] || "";
-    const price = Number(m["Price"] || 0);
-    const desc = m["Description"] || "";
-    const cat = m["Category"] || "";
+const categories = ["All", ...new Set(menuData.map(m => m["Category"]).filter(Boolean))];
+catDiv.innerHTML = `
+  <select id="category-dropdown" style="
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    font-family: var(--font-main);
+    background-color: #fff;
+    width: 90%;
+    max-width: 320px;
+  ">
+    ${categories.map(cat => `<option value="${cat}">${cat}</option>`).join("")}
+  </select>
+`;
 
-    const div = document.createElement("div");
-    div.className = "menu-item";
+document.getElementById("category-dropdown").onchange = (e) => {
+  filterCategory(e.target.value);
+};
+
+  // ✅ Render initial list
+  menuData.forEach(m => renderMenuItem(m, list));
+
+  // ✅ Show the menu page
+  menuPage.classList.remove("hidden");
+}
+
+function renderMenuItem(m, list) {
+  const available = (m["Available (TRUE/FALSE)"] === true || String(m["Available (TRUE/FALSE)"]).toUpperCase() === "TRUE");
+  const itemName = m["Item"] || "";
+  const price = Number(m["Price"] || 0);
+  const desc = m["Description"] || "";
+  const cat = m["Category"] || "";
+
+  const div = document.createElement("div");
+  div.className = "menu-item fade-in"; // ✨ fade-in animation class
+
+  if (available) {
     div.innerHTML = `
       <div class="menu-item-info">
         <strong>${escapeHtml(itemName)}</strong><br>
@@ -238,19 +500,171 @@ function showMenu() {
         <small>${escapeHtml(desc)}</small><br>
         <em>${escapeHtml(cat)}</em>
       </div>
-      <button onclick="addToCart('${escapeHtml(itemName)}', ${price})">Add</button>
+      <button onclick="openCustomize('${escapeHtml(itemName)}')">Select</button>
     `;
-    list.appendChild(div);
-  });
+  } else {
+    div.innerHTML = `
+      <div class="menu-item-info" style="opacity:0.6;">
+        <strong>${escapeHtml(itemName)}</strong><br>
+        ₱${escapeHtml(price.toString())}<br>
+        <small>${escapeHtml(desc)}</small><br>
+        <em>${escapeHtml(cat)}</em><br>
+        <span style="color:#b00020; font-weight:600;">Unavailable ❌</span>
+      </div>
+      <button disabled style="background:#ccc; cursor:not-allowed;">Select</button>
+    `;
+  }
 
-  document.getElementById("menu-page").classList.remove("hidden");
+  list.appendChild(div);
 }
 
-function addToCart(item, price) {
-  const existing = cart.find(c => c.item === item);
-  if (existing) existing.quantity++;
-  else cart.push({ item, price, quantity: 1 });
-  alert(`${item} added to cart!`);
+// ✅ Live search
+function filterMenu() {
+  const query = document.getElementById('search-box').value.toLowerCase().trim();
+  const list = document.getElementById("menu-list");
+  list.innerHTML = "";
+
+  const filtered = menuData.filter(m => 
+    (m["Item"] || "").toLowerCase().includes(query)
+  );
+
+  if (filtered.length === 0) {
+    list.innerHTML = `<p class='info'>No items found for "${query}".</p>`;
+  } else {
+    filtered.forEach(m => renderMenuItem(m, list));
+  }
+}
+
+// ✅ Category filtering
+function filterCategory(category) {
+  const buttons = document.querySelectorAll("#category-filters .condiment-btn");
+  buttons.forEach(b => b.classList.remove("selected"));
+
+  const activeBtn = Array.from(buttons).find(b => b.textContent === category);
+  if (activeBtn) activeBtn.classList.add("selected");
+
+  const list = document.getElementById("menu-list");
+  list.innerHTML = "";
+
+  const filtered = category === "All"
+    ? menuData
+    : menuData.filter(m => m["Category"] === category);
+
+  filtered.forEach(m => renderMenuItem(m, list));
+}
+
+/* ======================
+   CUSTOMIZE ITEM LOGIC
+====================== */
+
+function openCustomize(itemName) {
+  const item = menuData.find(m => m["Item"] === itemName);
+  if (!item) return alert("Item not found!");
+
+  selectedItem = item;
+  tempQty = 1;
+  selectedCondiments = [];
+
+  document.getElementById("menu-page").classList.add("hidden");
+  document.getElementById("item-customize-page").classList.remove("hidden");
+
+  document.getElementById("customize-title").textContent = itemName;
+  document.getElementById("customize-desc").textContent = item["Description"] || "";
+  document.getElementById("tempQty").textContent = tempQty;
+  updateCustomizePrice();
+
+  const condimentsDiv = document.getElementById("condiments-list");
+  condimentsDiv.innerHTML = "";
+
+  const keys = Object.keys(item);
+  const condiments = [];
+
+  for (let key of keys) {
+    if (/^C\d+$/i.test(key)) {
+      const condName = item[key];
+      if (condName && condName.trim() !== "") {
+        const priceKey = `${key} Price`;
+        const price = Number(item[priceKey] || 0);
+        condiments.push({ name: condName, price });
+      }
+    }
+  }
+
+  if (condiments.length === 0) {
+    condimentsDiv.innerHTML = "<p>No add-ons or condiments available for this item.</p>";
+  } else {
+    condiments.forEach(c => {
+      const btn = document.createElement("button");
+      btn.className = "condiment-btn";
+      btn.textContent = `${c.name}${c.price > 0 ? ` (₱${c.price})` : ""}`;
+      btn.dataset.name = c.name;
+      btn.dataset.price = c.price;
+      btn.onclick = () => toggleCondiment(btn);
+      condimentsDiv.appendChild(btn);
+    });
+  }
+
+  document.getElementById("selected-condiments").textContent = "";
+}
+
+function toggleCondiment(btn) {
+  const condName = btn.dataset.name;
+  const condPrice = Number(btn.dataset.price);
+  const isSelected = btn.classList.toggle("selected");
+
+  if (isSelected) {
+    selectedCondiments.push({ name: condName, price: condPrice });
+  } else {
+    selectedCondiments = selectedCondiments.filter(c => c.name !== condName);
+  }
+
+  updateCustomizePrice();
+}
+
+function changeTempQty(amount) {
+  tempQty = Math.max(1, tempQty + amount);
+  document.getElementById("tempQty").textContent = tempQty;
+  updateCustomizePrice();
+}
+
+function updateCustomizePrice() {
+  if (!selectedItem) return;
+
+  const basePrice = Number(selectedItem["Price"] || 0);
+  const condimentTotal = selectedCondiments.reduce((sum, c) => sum + c.price, 0);
+  const total = (basePrice + condimentTotal) * tempQty;
+
+  document.getElementById("customize-price").textContent = "₱" + total.toFixed(2);
+
+  const condNames = selectedCondiments.map(c => c.name).join(", ");
+  document.getElementById("selected-condiments").textContent = condNames
+    ? `🧂 Selected: ${condNames}`
+    : "";
+}
+
+/* ======================
+       CART LOGIC
+====================== */
+
+function confirmAddToCart() {
+  if (!selectedItem) return;
+  const base = Number(selectedItem["Price"] || 0);
+  const condTotal = selectedCondiments.reduce((sum, c) => sum + c.price, 0);
+  const total = (base + condTotal) * tempQty;
+
+  cart.push({
+    item: selectedItem["Item"],
+    basePrice: base,
+    condiments: selectedCondiments.map(c => c.name),
+    condimentsPrice: condTotal,
+    quantity: tempQty,
+    totalPrice: total
+  });
+
+  alert(`${selectedItem["Item"]} added to cart!`);
+  document.getElementById("item-customize-page").classList.add("hidden");
+  document.getElementById("menu-page").classList.remove("hidden");
+  selectedItem = null;
 }
 
 function goToCart() {
@@ -262,16 +676,18 @@ function goToCart() {
   if (cart.length === 0) list.innerHTML = "<p class='info'>Your cart is empty.</p>";
 
   cart.forEach((c, i) => {
-    total += c.price * c.quantity;
+    total += c.totalPrice;
     const row = document.createElement("div");
     row.className = "cart-item";
     row.innerHTML = `
-      <div>${escapeHtml(c.item)} x ${c.quantity}</div>
-      <div>
-        ₱${c.price}
-        <button onclick="changeQty(${i}, 1)">➕</button>
-        <button onclick="changeQty(${i}, -1)">➖</button>
-        <button onclick="removeItem(${i})">❌</button>
+      <div>${escapeHtml(c.item)} x ${c.quantity}<br><small>${(c.condiments || []).join(', ')}</small></div>
+      <div style="text-align: right;">
+        ₱${c.totalPrice}
+        <div class="actions">
+          <button class='qty-btn' onclick="changeQty(${i}, 1)">+</button>
+          <button class='qty-btn' onclick="changeQty(${i}, -1)">-</button>
+          <button class='qty-btn' onclick="removeItem(${i})">×</button>
+        </div>
       </div>
     `;
     list.appendChild(row);
@@ -285,6 +701,7 @@ function changeQty(i, d) {
   const item = cart[i];
   if (!item) return;
   item.quantity = Math.max(1, item.quantity + d);
+  item.totalPrice = (item.basePrice + item.condimentsPrice) * item.quantity;
   goToCart();
 }
 
@@ -295,6 +712,7 @@ function removeItem(i) {
 
 function backToMenu() {
   document.getElementById("cart-page").classList.add("hidden");
+  document.getElementById("item-customize-page").classList.add("hidden");
   document.getElementById("menu-page").classList.remove("hidden");
 }
 
@@ -304,35 +722,35 @@ function checkoutPage() {
 }
 
 async function submitOrder() {
-  if (cart.length === 0) return alert("Your cart is empty!");
   const pickupTime = document.getElementById("pickupTime").value;
-  const paymentFile = document.getElementById("paymentProof").files[0];
-  let paymentProof = paymentFile ? paymentFile.name : "";
+  const paymentProof = document.getElementById("paymentProof").files[0];
 
-  const orderData = {
-    name: student.name,
-    section: student.section,
-    pickupTime,
-    paymentProof,
-    cart
-  };
+  const formData = new FormData();
+  formData.append("studentName", student.name);
+  formData.append("section", student.section);
+  formData.append("pickupTime", pickupTime);
+  formData.append("cartItems", JSON.stringify(cart)); // array of {item, condiments, quantity, totalPrice}
+  if (paymentProof) formData.append("paymentProof", paymentProof);
 
   try {
-    await fetch(SCRIPT_URL, {
+    const res = await fetch(SCRIPT_URL, {
       method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(orderData)
+      body: formData,
     });
-    alert("✅ Order submitted successfully!");
-    cart = [];
-    document.getElementById("checkout-page").classList.add("hidden");
-    document.getElementById("student-info").classList.remove("hidden");
+
+    const result = await res.json();
+    if (result.result === "success") {
+      alert(`✅ Order submitted!\nYour Order ID: ${result.orderID}`);
+      cart = [];
+      backToMenu();
+    } else {
+      alert(`❌ Failed to submit order: ${result.message}`);
+    }
   } catch (err) {
-    console.error("Order submit failed:", err);
-    alert("❌ Failed to submit order. Check console and ensure Apps Script is deployed.");
+    alert("⚠️ Network or script error: " + err.message);
   }
 }
+
 
 function escapeHtml(s) {
   return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
