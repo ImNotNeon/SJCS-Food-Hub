@@ -242,6 +242,12 @@
     text-rendering: optimizeLegibility;
   }
 
+#referenceNumber {
+  width: 95%; /* adjust as needed, e.g., 50%, 250px, etc. */
+  margin: 0 auto;
+  display: block;
+}
+
   /* Floating checkout button */
 #cart-page button[onclick="checkoutPage()"] {
   position: fixed;
@@ -288,6 +294,47 @@
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.15);
   z-index: 999;
+}
+
+#loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  backdrop-filter: blur(3px);
+}
+
+.loading-box {
+  text-align: center;
+  background: white;
+  padding: 30px 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.spinner {
+  border: 4px solid #ddd;
+  border-top: 4px solid #007a33;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  margin: 0 auto 16px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.hidden {
+  display: none !important;
 }
 
 
@@ -355,18 +402,27 @@
       <option value="Custom">Custom</option>
     </select>
 
-    <p>Upload GCash proof (optional):</p>
-    <input type="file" id="paymentProof" accept="image/*" />
+    <input type="time" id="customTime" class="hidden" placeholder="Enter custom pickup time" />
+
+    <p>Enter your GCash Reference Number (required):</p>
+    <input type="text" id="referenceNumber" placeholder="e.g. 1234567891011" maxlength="13" required />
 
     <p>Scan the QR or see the details:</p>
     <img src="GCASH.jpg" alt="GCash QR" style="width:150px; display:block; margin:10px auto; border-radius:8px;">
 
     <button onclick="submitOrder()">Submit Order 🥡</button>
   </div>
+
+  <div id="loading-overlay" class="hidden">
+    <div class="loading-box">
+      <div class="spinner"></div>
+      <p id="loading-text">Please wait...</p>
+    </div>
+  </div>
   
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxZAHZ7rZKEbWJh6snOK1SyUrd0GxURuwUreVuqPtjYm_9juCC07ZF4c9VH66Ut794q/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxrbLm-jxEdLAqJZLXpWxjGf3-butz_G1Y6Xh8SrpOpEaHziqyY0U58N_QpxE1yCaDj/exec";
 
 let student = {};
 let cart = [];
@@ -402,9 +458,22 @@ async function startOrder() {
     return;
   }
   student = { name, section };
+  showLoading("Please wait... Loading menu 🍱");
   if (!menuLoaded) await loadMenu();
+  hideLoading();
+
   document.getElementById("student-info").classList.add("hidden");
   showMenu();
+}
+
+function showLoading(message) {
+  const overlay = document.getElementById('loading-overlay');
+  document.getElementById('loading-text').textContent = message;
+  overlay.classList.remove('hidden');
+}
+
+function hideLoading() {
+  document.getElementById('loading-overlay').classList.add('hidden');
 }
 
 function showMenu() {
@@ -481,6 +550,16 @@ document.getElementById("category-dropdown").onchange = (e) => {
   // ✅ Show the menu page
   menuPage.classList.remove("hidden");
 }
+
+  document.getElementById("pickupTime").addEventListener("change", function () {
+    const customInput = document.getElementById("customTime");
+    if (this.value === "Custom") {
+      customInput.classList.remove("hidden");
+    } else {
+      customInput.classList.add("hidden");
+      customInput.value = ""; // clear previous custom time
+    }
+  });
 
 function renderMenuItem(m, list) {
   const available = (m["Available (TRUE/FALSE)"] === true || String(m["Available (TRUE/FALSE)"]).toUpperCase() === "TRUE");
@@ -721,35 +800,65 @@ function checkoutPage() {
   document.getElementById("checkout-page").classList.remove("hidden");
 }
 
-async function submitOrder() {
-  const pickupTime = document.getElementById("pickupTime").value;
-  const paymentProof = document.getElementById("paymentProof").files[0];
+function toggleCustomTimeInput() {
+  const select = document.getElementById("pickupTime");
+  const customInput = document.getElementById("customPickupTime");
 
-  const formData = new FormData();
-  formData.append("studentName", student.name);
-  formData.append("section", student.section);
-  formData.append("pickupTime", pickupTime);
-  formData.append("cartItems", JSON.stringify(cart)); // array of {item, condiments, quantity, totalPrice}
-  if (paymentProof) formData.append("paymentProof", paymentProof);
-
-  try {
-    const res = await fetch(SCRIPT_URL, {
-      method: "POST",
-      body: formData,
-    });
-
-    const result = await res.json();
-    if (result.result === "success") {
-      alert(`✅ Order submitted!\nYour Order ID: ${result.orderID}`);
-      cart = [];
-      backToMenu();
-    } else {
-      alert(`❌ Failed to submit order: ${result.message}`);
-    }
-  } catch (err) {
-    alert("⚠️ Network or script error: " + err.message);
+  if (select.value === "Custom") {
+    customInput.classList.remove("hidden");
+  } else {
+    customInput.classList.add("hidden");
+    customInput.value = ""; // clear old value
   }
 }
+
+async function submitOrder() {
+  const pickupTime = document.getElementById("pickupTime").value;
+  const customTime = document.getElementById("customTime").value;
+  const referenceNumber = document.getElementById("referenceNumber").value.trim();
+
+  const finalPickupTime = pickupTime === "Custom" ? customTime : pickupTime;
+
+  if (!referenceNumber) {
+    alert("Please enter your GCash reference number.");
+    return;
+  }
+
+  if (pickupTime === "Custom" && !customTime) {
+    alert("Please enter your custom pickup time.");
+    return;
+  }
+
+  // now finalPickupTime contains either Recess/Lunch/custom value
+  console.log("Final pickup time:", finalPickupTime);
+
+  const payload = new FormData();
+  payload.append("studentName", student.name);
+  payload.append("section", student.section);
+  payload.append("pickupTime", finalPickupTime);
+  payload.append("cartItems", JSON.stringify(cart));
+  payload.append("referenceNumber", referenceNumber);
+
+  showLoading("Please wait... Confirming your order 🧾");
+
+  try {
+    const res = await fetch(SCRIPT_URL, { method: "POST", body: payload });
+    const result = await res.json();
+
+    if (result.result === "success") {
+      hideLoading();
+      alert(`✅ Order submitted!\nYour Order ID: ${result.orderID}`);
+      location.reload();
+    } else {
+      hideLoading();
+      alert("Error: " + result.message);
+    }
+  } catch (err) {
+    hideLoading();
+    alert("Submission failed. Please check your internet and try again.");
+  }
+}
+
 
 
 function escapeHtml(s) {
