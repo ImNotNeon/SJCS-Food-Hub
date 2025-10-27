@@ -410,7 +410,23 @@
     <p>Scan the QR or see the details:</p>
     <img src="GCASH.jpg" alt="GCash QR" style="width:150px; display:block; margin:10px auto; border-radius:8px;">
 
+    <button onclick="backToCart()">Back to Cart 🛒</button>
+
     <button onclick="submitOrder()">Submit Order 🥡</button>
+  </div>
+
+  <div class="container hidden" id="thankyou-page">
+    <h2>Thank You! 🎉</h2>
+    <p>Your order has been submitted successfully.</p>
+    <div id="order-summary">
+      <p><strong>Name:</strong> <span id="summary-name"></span></p>
+      <p><strong>Section:</strong> <span id="summary-section"></span></p>
+      <p><strong>Pickup Time:</strong> <span id="summary-time"></span></p>
+      <p><strong>Reference:</strong> <span id="summary-ref"></span></p>
+      <ul id="summary-items"></ul>
+      <p><strong>Total:</strong> ₱<span id="summary-total"></span></p>
+    </div>
+    <button onclick="backToFirstPage()">New Order 📝</button>
   </div>
 
   <div id="loading-overlay" class="hidden">
@@ -812,6 +828,11 @@ function toggleCustomTimeInput() {
   }
 }
 
+function backToCart() {
+  document.getElementById("checkout-page").classList.add("hidden");
+  document.getElementById("cart-page").classList.remove("hidden");
+}
+
 async function submitOrder() {
   const pickupTime = document.getElementById("pickupTime").value;
   const customTime = document.getElementById("customTime").value;
@@ -844,21 +865,82 @@ async function submitOrder() {
   try {
     const res = await fetch(SCRIPT_URL, { method: "POST", body: payload });
     const result = await res.json();
-
+    hideLoading();
     if (result.result === "success") {
-      hideLoading();
-      alert(`✅ Order submitted!\nYour Order ID: ${result.orderID}`);
-      location.reload();
+      showThankYou(finalPickupTime, referenceNumber, result.orderID);
     } else {
-      hideLoading();
       alert("Error: " + result.message);
     }
   } catch (err) {
-    hideLoading();
     alert("Submission failed. Please check your internet and try again.");
   }
 }
 
+function showThankYou(pickupTime, referenceNumber, orderID) {
+  document.getElementById("checkout-page").classList.add("hidden");
+  document.getElementById("thankyou-page").classList.remove("hidden");
+
+  document.getElementById("summary-name").textContent = student.name;
+  document.getElementById("summary-section").textContent = student.section;
+
+  // Convert 24-hour to 12-hour format
+  let displayTime = pickupTime;
+  if (/^\d{2}:\d{2}$/.test(pickupTime)) { // if it's HH:MM format
+    let [h, m] = pickupTime.split(":").map(Number);
+    const ampm = h >= 12 ? "PM" : "AM";
+    h = h % 12 || 12;
+    displayTime = `${h}:${m.toString().padStart(2,'0')} ${ampm}`;
+  }
+
+  document.getElementById("summary-time").textContent = displayTime;
+  document.getElementById("summary-ref").textContent = referenceNumber;
+
+  const summaryList = document.getElementById("summary-items");
+  summaryList.innerHTML = "";
+  let total = 0;
+
+  cart.forEach(item => {
+    const li = document.createElement("li");
+    li.textContent = `${item.item} x${item.quantity}` + (item.condiments?.length ? ` (${item.condiments.join(", ")})` : "");
+    summaryList.appendChild(li);
+    total += item.totalPrice;
+  });
+
+  document.getElementById("summary-total").textContent = total.toFixed(2);
+
+  // Display order ID
+  const orderIDEl = document.createElement("p");
+  orderIDEl.innerHTML = `<strong>Order ID:</strong> ${orderID}`;
+  document.getElementById("order-summary").appendChild(orderIDEl);
+
+  // Add screenshot reminder
+  const screenshotMsg = document.createElement("p");
+  screenshotMsg.style.color = "#007a33";
+  screenshotMsg.style.fontWeight = "600";
+  screenshotMsg.textContent = "📸 Please screenshot this receipt for your reference!";
+  document.getElementById("order-summary").appendChild(screenshotMsg);
+
+  // Clear cart
+  cart = [];
+}
+
+function backToFirstPage() {
+  // Hide thank-you page
+  document.getElementById("thankyou-page").classList.add("hidden");
+
+  // Show first page
+  document.getElementById("student-info").classList.remove("hidden");
+
+  // Clear form inputs
+  document.getElementById("name").value = "";
+  document.getElementById("section").value = "";
+
+  // Reset cart and other pages
+  cart = [];
+  document.getElementById("menu-page").classList.add("hidden");
+  document.getElementById("cart-page").classList.add("hidden");
+  document.getElementById("checkout-page").classList.add("hidden");
+}
 
 
 function escapeHtml(s) {
